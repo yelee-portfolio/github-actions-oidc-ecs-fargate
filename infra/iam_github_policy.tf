@@ -29,7 +29,9 @@ data "aws_iam_policy_document" "github_deploy_permissions" {
     effect = "Allow"
 
     actions = [
-      "ecs:RegisterTaskDefinition"
+      "ecs:RegisterTaskDefinition",
+      "ecs:DescribeTaskDefinition",
+      "ecs:ListTasks"
     ]
 
     resources = ["*"]
@@ -41,15 +43,12 @@ data "aws_iam_policy_document" "github_deploy_permissions" {
     actions = [
       "ecs:UpdateService",
       "ecs:DescribeServices",
-      "ecs:DescribeTaskDefinition",
-      "ecs:DescribeTasks",
-      "ecs:ListTasks"
+      "ecs:DescribeTasks"
     ]
 
     resources = [
       aws_ecs_cluster.app.arn,
-      aws_ecs_service.app.id,
-      aws_ecs_task_definition.app.arn
+      aws_ecs_service.app.id
     ]
   }
 

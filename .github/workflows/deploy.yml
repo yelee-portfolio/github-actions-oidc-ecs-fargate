@@ -1,4 +1,4 @@
-﻿name: Deploy to ECS
+name: Deploy to ECS
 
 on:
   push:
@@ -60,10 +60,11 @@ jobs:
 
           echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
-      - name: Create updated task definition
+      - name: Create intentionally unhealthy task definition
         env:
           IMAGE_URI: ${{ steps.build-image.outputs.image }}
           GIT_SHA: ${{ github.sha }}
+          FAIL_HEALTHCHECK_VALUE: "true"
         run: |
           aws ecs describe-task-definition \
             --task-definition $TASK_DEFINITION_FAMILY \
@@ -74,6 +75,7 @@ jobs:
             --arg image "$IMAGE_URI" \
             --arg git_sha "$GIT_SHA" \
             --arg container_name "$CONTAINER_NAME" \
+            --arg fail_healthcheck "$FAIL_HEALTHCHECK_VALUE" \
             '
             del(
               .taskDefinitionArn,
@@ -89,12 +91,24 @@ jobs:
             | .containerDefinitions |= map(
                 if .name == $container_name then
                   .image = $image
-                  | .environment |= map(
-                      if .name == "APP_VERSION" then
-                        .value = $git_sha
-                      else
-                        .
-                      end
+                  | .environment |= (
+                      map(
+                        if .name == "APP_VERSION" then
+                          .value = $git_sha
+                        elif .name == "FAIL_HEALTHCHECK" then
+                          .value = $fail_healthcheck
+                        else
+                          .
+                        end
+                      )
+                      | if any(.[]; .name == "FAIL_HEALTHCHECK") then
+                          .
+                        else
+                          . + [{
+                            "name": "FAIL_HEALTHCHECK",
+                            "value": $fail_healthcheck
+                          }]
+                        end
                     )
                 else
                   .

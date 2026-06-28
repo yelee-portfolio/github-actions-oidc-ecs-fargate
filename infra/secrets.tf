@@ -6,14 +6,6 @@ resource "aws_secretsmanager_secret" "app" {
   }
 }
 
-resource "aws_secretsmanager_secret_version" "app" {
-  secret_id = aws_secretsmanager_secret.app.id
-
-  secret_string = jsonencode({
-    DEMO_SECRET = "replace-this-after-first-apply"
-  })
-}
-
 data "aws_iam_policy_document" "ecs_task_execution_secret_access" {
   statement {
     effect = "Allow"
