@@ -1,3 +1,11 @@
-spring:
+﻿spring:
   application:
     name: secure-deploy-app
+
+management:
+  endpoint:
+    health:
+      show-details: never
+  health:
+    defaults:
+      enabled: true
