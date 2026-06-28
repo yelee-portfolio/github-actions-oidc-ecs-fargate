@@ -16,6 +16,7 @@ env:
   ECS_SERVICE: secure-ecs-oidc-service
   TASK_DEFINITION_FAMILY: secure-ecs-oidc-task
   CONTAINER_NAME: app
+  APP_SECRET_ID: secure-ecs-oidc/app
 
 jobs:
   deploy:
@@ -30,6 +31,15 @@ jobs:
         with:
           role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
+
+      - name: Verify deploy role cannot read application secret
+        run: |
+          if aws secretsmanager get-secret-value --secret-id "$APP_SECRET_ID" --region "$AWS_REGION" >/dev/null 2>&1; then
+            echo "ERROR: Deploy role unexpectedly read the application secret."
+            exit 1
+          else
+            echo "PASS: Deploy role is denied access to the application secret."
+          fi
 
       - name: Login to Amazon ECR
         id: login-ecr
