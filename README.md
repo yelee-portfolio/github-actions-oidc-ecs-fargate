@@ -188,3 +188,5 @@ Secret을 restore한 뒤 Terraform import로 state에 다시 등록해 해결했
 - Private Subnet, NAT Gateway 또는 VPC Endpoint 기반 구조로 개선
 - Terraform Remote Backend 구성: S3 + DynamoDB Locking
 - CloudWatch Alarm 및 배포 실패 알림 구성
+
+  > 비용 관리를 위해 검증 완료 후 AWS 리소스는 정리했습니다. 따라서 이후 문서 수정 커밋에서 실행된 배포 워크플로는 인프라 부재로 실패할 수 있습니다.
